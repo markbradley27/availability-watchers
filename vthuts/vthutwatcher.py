@@ -86,15 +86,17 @@ def main(argv):
     saved_openings = load_openings(cabin_id)
     fetched_openings = fetch_openings(cabin_id)
     cabin_diffs = diff_openings(saved_openings, fetched_openings)
-    logging.info("%s diffs: %s", CABINS[cabin_id], cabin_diffs)
+    logging.debug("%s diffs: %s", CABINS[cabin_id], cabin_diffs)
     if cabin_diffs:
       diffs[cabin_id] = cabin_diffs
     save_openings(cabin_id, fetched_openings)
 
-  logging.info("diffs: %s", diffs)
   if diffs:
+    logging.info("Found diffs: %s", diffs)
     notify_of_diffs(diffs, FLAGS.notify_email, FLAGS.notifier_email,
                     FLAGS.notifier_password)
+  else:
+    logging.info("No diffs found.")
 
 
 if __name__ == "__main__":
