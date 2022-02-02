@@ -39,7 +39,7 @@ def main(argv):
   end_date = datetime.datetime.strptime(FLAGS.end_date,
                                         _FLAG_DATE_FORMAT).date()
 
-  watcher_classes = (watchers.VTHutsWatcher,)
+  watcher_classes = (watchers.GMCWatcher, watchers.VTHutsWatcher)
 
   diffs = {}
   for watcher_cls in watcher_classes:
