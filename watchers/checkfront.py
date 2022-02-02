@@ -21,7 +21,6 @@ class CheckFrontWatcher(AbstractWatcher):
         category_id=cabin_id,
         filter_category_id=cabin_id,
         filter_item_id=cabin_id)
-    logging.info("url: %s", cabin_url)
     with urllib.request.urlopen(cabin_url) as openings_url:
       raw = json.loads(openings_url.read().decode())
       return {
