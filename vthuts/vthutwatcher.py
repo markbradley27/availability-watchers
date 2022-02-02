@@ -1,11 +1,8 @@
 from absl import app
 from absl import flags
 from absl import logging
-
-from email.message import EmailMessage
 import json
-import smtplib
-import ssl
+import notifiers
 import urllib.request
 
 FLAGS = flags.FLAGS
@@ -61,21 +58,18 @@ def diff_openings(saved, fetched):
   return diffs
 
 
-def notify_of_diffs(diffs, to_email, from_email, from_password):
-  msg = EmailMessage()
-  content = "\n".join([
+def notify_of_diffs(diffs, to_email, from_username, from_password):
+  message = "\n".join([
       "{} diffs: {}".format(CABINS[cabin_id], dates)
       for cabin_id, dates in diffs.items()
   ])
-  msg.set_content(content)
-  msg['Subject'] = "VTCabinWatcher found a diff!"
-  msg['From'] = from_email
-  msg['To'] = to_email
-
-  context = ssl.create_default_context()
-  with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-    server.login(from_email, from_password)
-    server.send_message(msg)
+  gmail = notifiers.get_notifier("gmail")
+  gmail.notify(
+      to=to_email,
+      subject="VTCabinWatcher found a diff!",
+      message=message,
+      username=from_username,
+      password=from_password)
 
 
 def main(argv):
