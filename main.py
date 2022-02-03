@@ -4,10 +4,16 @@ from absl import logging
 import datetime
 import notifiers
 import pprint
+import pyjokes
 
 import watchers
 
 FLAGS = flags.FLAGS
+
+flags.DEFINE_bool(
+    "just_send_a_joke", False,
+    "Sends a joke instead of checking for diffs (used as daily sanity check that notifications are still coming through)."
+)
 
 flags.DEFINE_string("notify_email", "", "Email address to notify.")
 flags.DEFINE_string("notifier_email", "", "Account to send emails from.")
@@ -21,18 +27,33 @@ flags.DEFINE_string("end_date", "2022-03-01",
 _FLAG_DATE_FORMAT = "%Y-%m-%d"
 
 
-def notify(diffs, to_email, from_email, from_password):
+def notify(subject, message, to_email, from_email, from_password):
   gmail = notifiers.get_notifier("gmail")
   gmail.notify(
       to=to_email,
-      subject="AvailabilityWatcher found a diff!",
-      message=pprint.pformat(diffs),
+      subject=subject,
+      message=message,
       username=from_email,
       password=from_password)
 
 
+def notify_diffs(diffs, to_email, from_email, from_password):
+  notify("AvailabilityWatcher found a diff!", pprint.pformat(diffs), to_email,
+         from_email, from_password)
+
+
+def notify_joke(to_email, from_email, from_password):
+  logging.info("Just checking in (hope you like the joke!).")
+  notify("AvailibilityWatcher just checking in!", pyjokes.get_joke(), to_email,
+         from_email, from_password)
+
+
 def main(argv):
   del argv
+
+  if (FLAGS.just_send_a_joke):
+    return notify_joke(FLAGS.notify_email, FLAGS.notifier_email,
+                       FLAGS.notifier_password)
 
   start_date = datetime.datetime.strptime(FLAGS.start_date,
                                           _FLAG_DATE_FORMAT).date()
@@ -50,8 +71,8 @@ def main(argv):
 
   if diffs:
     logging.info("Found diffs: %s", diffs)
-    notify(diffs, FLAGS.notify_email, FLAGS.notifier_email,
-           FLAGS.notifier_password)
+    notify_diffs(diffs, FLAGS.notify_email, FLAGS.notifier_email,
+                 FLAGS.notifier_password)
   else:
     logging.info("No diffs found.")
 
