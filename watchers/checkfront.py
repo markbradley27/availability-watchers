@@ -1,3 +1,4 @@
+import abc
 from absl import logging
 import datetime
 import json
@@ -9,13 +10,19 @@ from .abstract_watcher import AbstractWatcher, AvailabilityMap
 
 class CheckFrontWatcher(AbstractWatcher):
 
-  # These must both be overridden by subclasses.
-  _BASE_URL = "TODO"
-  _CABINS = {}
+  @property
+  @abc.abstractmethod
+  def base_url(self) -> Text:
+    pass
+
+  @property
+  @abc.abstractmethod
+  def cabins(self) -> Dict[int, Text]:
+    pass
 
   def fetch_availability(self, cabin_id: int, start_date: datetime.date,
                          end_date: datetime.date) -> AvailabilityMap:
-    cabin_url = self._BASE_URL.format(
+    cabin_url = self.base_url.format(
         start_date=start_date.strftime("%Y-%m-%d"),
         end_date=end_date.strftime("%Y-%m-%d"),
         category_id=cabin_id,
@@ -31,7 +38,7 @@ class CheckFrontWatcher(AbstractWatcher):
   def get_diffs(self, start_date: datetime.date,
                 end_date: datetime.date) -> Dict[Text, AvailabilityMap]:
     diffs = {}
-    for cabin_id, cabin_name in self._CABINS.items():
+    for cabin_id, cabin_name in self.cabins.items():
       logging.info("Checking %s.", cabin_name)
       saved = self.load_availability(cabin_id)
       fetched = self.fetch_availability(cabin_id, start_date, end_date)

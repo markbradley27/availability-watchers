@@ -64,9 +64,10 @@ def main(argv):
   diffs = {}
   for watcher_cls in watcher_classes:
     watcher = watcher_cls()
+    logging.info("Checking %s.", watcher.name)
     watcher_diffs = watcher.get_diffs(config["start_date"], config["end_date"])
     if watcher_diffs:
-      diffs[watcher_cls.NAME] = watcher_diffs
+      diffs[watcher.name] = watcher_diffs
 
   if diffs:
     logging.info("Found diffs: %s", diffs)

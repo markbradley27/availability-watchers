@@ -7,36 +7,36 @@ AvailabilityMap = Dict[datetime.date, bool]
 
 
 class AbstractWatcher(abc.ABC):
-  NAME = "Abstract"
-
   _SAVED_DATE_FORMAT = "%Y-%m-%d"
 
-  @classmethod
-  def filename(cls, id: Union[Text, int] = None) -> Text:
-    if id is None:
-      return "availability_files/{}_availability.json".format(cls.NAME)
-    else:
-      return "availability_files/{}_{}_availability.json".format(cls.NAME, id)
+  @property
+  @abc.abstractmethod
+  def name(self) -> Text:
+    pass
 
-  @classmethod
-  def load_availability(cls, id: Union[Text, int] = None) -> AvailabilityMap:
+  def filename(self, id: Union[Text, int] = None) -> Text:
+    if id is None:
+      return "availability_files/{}_availability.json".format(self.name)
+    else:
+      return "availability_files/{}_{}_availability.json".format(self.name, id)
+
+  def load_availability(self, id: Union[Text, int] = None) -> AvailabilityMap:
     try:
-      with open(cls.filename(id), "r") as openings_file:
+      with open(self.filename(id), "r") as openings_file:
         formatted = json.loads(openings_file.read())
         return {
-            datetime.datetime.strptime(k, cls._SAVED_DATE_FORMAT).date(): v
+            datetime.datetime.strptime(k, self._SAVED_DATE_FORMAT).date(): v
             for k, v in formatted.items()
         }
     except FileNotFoundError:
       return {}
 
-  @classmethod
-  def save_availability(cls,
+  def save_availability(self,
                         availability: AvailabilityMap,
                         id: Union[Text, int] = None):
-    with open(cls.filename(id), "w") as openings_file:
+    with open(self.filename(id), "w") as openings_file:
       formatted = {
-          k.strftime(cls._SAVED_DATE_FORMAT): v
+          k.strftime(self._SAVED_DATE_FORMAT): v
           for k, v in availability.items()
       }
       openings_file.write(json.dumps(formatted, sort_keys=True, indent=2))
