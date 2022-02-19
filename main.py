@@ -1,30 +1,16 @@
 from absl import app
 from absl import flags
 from absl import logging
-import datetime
 import notifiers
 import pyjokes
+import yaml
 import yattag
 
 import watchers
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_bool(
-    "just_send_a_joke", False,
-    "Sends a joke instead of checking for diffs (used as daily sanity check that notifications are still coming through)."
-)
-
-flags.DEFINE_string("notify_email", "", "Email address to notify.")
-flags.DEFINE_string("notifier_email", "", "Account to send emails from.")
-flags.DEFINE_string("notifier_password", "", "Password for notifier account.")
-
-flags.DEFINE_string("start_date", "2022-01-18",
-                    "Start of date range to watch (format is YYYY-MM-DD).")
-flags.DEFINE_string("end_date", "2022-03-01",
-                    "End of date range to watch (format is YYYY-MM-DD).")
-
-_FLAG_DATE_FORMAT = "%Y-%m-%d"
+flags.DEFINE_string("config_file", "./config.yaml", "Path to config file.")
 
 
 def notify(subject, message, to_email, from_email, from_password):
@@ -66,28 +52,26 @@ def notify_joke(to_email, from_email, from_password):
 def main(argv):
   del argv
 
-  if (FLAGS.just_send_a_joke):
-    return notify_joke(FLAGS.notify_email, FLAGS.notifier_email,
-                       FLAGS.notifier_password)
+  with open(FLAGS.config_file, "r") as config_file:
+    config = yaml.safe_load(config_file)
 
-  start_date = datetime.datetime.strptime(FLAGS.start_date,
-                                          _FLAG_DATE_FORMAT).date()
-  end_date = datetime.datetime.strptime(FLAGS.end_date,
-                                        _FLAG_DATE_FORMAT).date()
+  if (config["just_send_a_joke"]):
+    return notify_joke(config["notify_email"], config["notifier_email"],
+                       config["notifier_password"])
 
   watcher_classes = (watchers.GMCWatcher, watchers.VTHutsWatcher)
 
   diffs = {}
   for watcher_cls in watcher_classes:
     watcher = watcher_cls()
-    watcher_diffs = watcher.get_diffs(start_date, end_date)
+    watcher_diffs = watcher.get_diffs(config["start_date"], config["end_date"])
     if watcher_diffs:
       diffs[watcher_cls.NAME] = watcher_diffs
 
   if diffs:
     logging.info("Found diffs: %s", diffs)
-    notify_diffs(diffs, FLAGS.notify_email, FLAGS.notifier_email,
-                 FLAGS.notifier_password)
+    notify_diffs(diffs, config["notify_email"], config["notifier_email"],
+                 config["notifier_password"])
   else:
     logging.info("No diffs found.")
 
