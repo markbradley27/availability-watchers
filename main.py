@@ -3,8 +3,8 @@ from absl import flags
 from absl import logging
 import datetime
 import notifiers
-import pprint
 import pyjokes
+import yattag
 
 import watchers
 
@@ -34,11 +34,26 @@ def notify(subject, message, to_email, from_email, from_password):
       subject=subject,
       message=message,
       username=from_email,
-      password=from_password)
+      password=from_password,
+      html=True)
 
 
 def notify_diffs(diffs, to_email, from_email, from_password):
-  notify("AvailabilityWatcher found a diff!", pprint.pformat(diffs), to_email,
+  doc, tag, text, line = yattag.Doc().ttl()
+
+  with tag('html'):
+    with tag('body'):
+      for provider, id_dict in diffs.items():
+        line('h2', provider, style="margin: 0px 0px 0px 0px")
+        for id, dates_dict in id_dict.items():
+          line('h3', id, style="margin: 0px 0px 0px 20px")
+          for date, newly_available in dates_dict.items():
+            with tag('div', style="margin: 0px 0px 0px 40px"):
+              text("{}: {}".format(
+                  date, "Newly Available"
+                  if newly_available else "Newly Unavailable"))
+
+  notify("AvailabilityWatcher found a diff!", doc.getvalue(), to_email,
          from_email, from_password)
 
 
