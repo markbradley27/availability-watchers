@@ -1,7 +1,7 @@
 import abc
 import datetime
 import json
-from typing import Dict, Text, Union
+from typing import Dict, Text, Tuple, Union
 
 AvailabilityMap = Dict[datetime.date, bool]
 
@@ -12,6 +12,19 @@ class AbstractWatcher(abc.ABC):
   @property
   @abc.abstractmethod
   def name(self) -> Text:
+    pass
+
+  @property
+  @abc.abstractmethod
+  def ids(self) -> Tuple[Text, ...]:
+    pass
+
+  # Returns a map of changes in availability.
+  # ID maps to a map of dates that map to true if the date is newly available
+  # and false if the date is newly unavailable.
+  @abc.abstractmethod
+  def get_diffs(self, start_date: datetime.date,
+                end_date: datetime.date) -> Dict[Text, AvailabilityMap]:
     pass
 
   def filename(self, id: Union[Text, int] = None) -> Text:
@@ -49,11 +62,3 @@ class AbstractWatcher(abc.ABC):
       if date not in saved or saved[date] != fetched[date]:
         diff[date] = fetched[date]
     return diff
-
-  # Returns a map of changes in availability.
-  # ID maps to a map of dates that map to true if the date is newly available
-  # and false if the date is newly unavailable.
-  @abc.abstractmethod
-  def get_diffs(self, start_date: datetime.date,
-                end_date: datetime.date) -> Dict[Text, AvailabilityMap]:
-    pass
