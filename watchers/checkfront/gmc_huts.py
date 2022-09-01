@@ -1,20 +1,17 @@
 from typing import Dict, Text
 
-from .checkfront import CheckFrontWatcher
+from watchers import base_watcher
+from watchers.checkfront import base_checkfront
 
 
-class GMCWatcher(CheckFrontWatcher):
-
-  @property
-  def name(self) -> Text:
-    return "GMCHuts"
+class GMCHuts(base_checkfront.BaseCheckfront):
 
   @property
-  def base_url(self) -> Text:
+  def url_template(self) -> Text:
     return "https://greenmountainclub.checkfront.com/reserve/api/?call=calendar_days&start_date={start_date}&end_date={end_date}&category_id=2&filter_category_id=2&filter_item_id={filter_item_id}"
 
   @property
-  def cabins(self) -> Dict[Text, int]:
+  def site_id_to_num_id(self) -> Dict[base_watcher.SiteId, int]:
     return {
         "wheeler_pond_camps": 3,
         "bryant_camp": 9,

@@ -1,10 +1,27 @@
+---
 notifier_email: scriptalerts12345@gmail.com
 notifier_password: <password>
 
 just_send_a_joke: False
 
-notify_email: markbradley27@gmail.com
-
-start_date: 2022-01-18
-end_date: 2022-03-01
-
+alert_groups:
+  - emails:
+    - markbradley27@gmail.com
+    date_ranges:
+      - start_date: 2022-06-01
+        end_date: 2022-11-01
+      - start_date: 2023-01-01
+        end_date: 2023-01-11
+    providers:
+      # Empty list of site IDs will check all site IDs.
+      VTHuts: []
+      GMCHuts: ["wheeler_pond_camps"]
+  - emails:
+    - someoneelse@gmail.com
+    date_ranges:
+      - start_date: 2022-06-01
+        end_date: 2022-11-02
+    providers:
+      VTHuts: ["dark_star_cabin"]
+      GMCHuts: ["bolton_lodge"]
+...
