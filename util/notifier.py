@@ -58,6 +58,7 @@ class Notifier:
                 style="margin: 0px 0px 0px 20px")
             for site_id, availability_diff in site_dict.items():
               with tag('div', style="margin: 0px 0px 0px 40px"):
-                text("{}: {} -> {}".format(site_id, availability_diff.old,
-                                           availability_diff.new))
+                text("{}: {} -> {}".format(
+                    site_id, availability_diff.old if availability_diff.old
+                    is not None else "?", availability_diff.new))
     self.send_email(to, "availability-watcher found a diff!", doc.getvalue())
