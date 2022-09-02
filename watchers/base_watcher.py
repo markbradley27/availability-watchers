@@ -25,8 +25,10 @@ class BaseWatcher(abc.ABC):
   @property
   @abc.abstractmethod
   def site_ids(self) -> List[SiteId]:
-    """List of all site IDs supported by this watcher. Should be numbers or
-    lowercase underscore separated words."""
+    """List of all site IDs supported by this watcher. These should be
+    human-friendly IDs (the name of the hut or the campsite number, for
+    example), not API IDs. Subclasses are responsible for mapping between the
+    two."""
     pass
 
   @abc.abstractmethod
