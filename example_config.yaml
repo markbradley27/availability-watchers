@@ -1,8 +1,5 @@
 ---
 notifier_email: scriptalerts12345@gmail.com
-notifier_password: <password>
-
-just_send_a_joke: False
 
 alert_groups:
   - emails:
