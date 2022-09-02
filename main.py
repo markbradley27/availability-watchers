@@ -1,6 +1,7 @@
 from absl import app
 from absl import flags
 from absl import logging
+import datetime
 import pprint
 import pyjokes
 from typing import Dict, Text
@@ -42,8 +43,10 @@ def main(argv):
       if watcher_name in alert_group["providers"]:
         logging.info("Checking watcher: %s", watcher_name)
         for config_date_range in alert_group["date_ranges"]:
-          date_range = DateRange(config_date_range["start_date"],
-                                 config_date_range["end_date"])
+          start_date = config_date_range["start_date"]
+          if start_date < datetime.date.today():
+            start_date = datetime.date.today()
+          date_range = DateRange(start_date, config_date_range["end_date"])
           logging.info("Checking date range: %s", date_range)
           watcher_diffs = watcher.get_diffs(
               date_range, alert_group["providers"][watcher_name] or None)
