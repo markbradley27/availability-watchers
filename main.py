@@ -9,6 +9,7 @@ import yaml
 
 from watchers import base_watcher
 from watchers.checkfront import gmc_huts, vt_huts
+from watchers.recreation_gov import fairholme_campground
 from util.date_range import DateRange
 from util.notifier import Notifier
 
@@ -32,7 +33,8 @@ def main(argv):
                         pyjokes.get_joke())
     return
 
-  watchers = (gmc_huts.GMCHuts(), vt_huts.VTHuts())
+  watchers = (fairholme_campground.FairholmeCampground(), gmc_huts.GMCHuts(),
+              vt_huts.VTHuts())
 
   # TODO: Notify if anything goes wrong.
   for alert_group in config["alert_groups"]:
