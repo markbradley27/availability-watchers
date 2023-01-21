@@ -2,8 +2,8 @@
 
 ## Setup
 
-1. Create gmail API client credentials on the gCloud console and save them to client_secret.json.
-1. The first time you run the script, it will redirect to a Google oAuth login page. Log in with the account you want to send the notification emails.
+1. Populate `.env` file with Mailjet API keys.
+1. `mkdir availability_files`
 
 ## Usage
 

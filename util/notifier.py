@@ -1,9 +1,6 @@
-import base64
+from absl import logging
 from email.mime.text import MIMEText
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
+import mailjet_rest
 import os
 from typing import Dict, Text
 import yattag
@@ -17,32 +14,31 @@ class Notifier:
   def __init__(self, from_email: Text):
     self._from_email = from_email
 
-    creds = None
-    if os.path.exists("token.json"):
-      creds = Credentials.from_authorized_user_file("token.json", self.SCOPES)
-    if not creds or not creds.valid:
-      if creds and creds.expired and creds.refresh_token:
-        creds.refresh(Request())
-      else:
-        flow = InstalledAppFlow.from_client_secrets_file(
-            "client_secret.json", self.SCOPES)
-        creds = flow.run_local_server(port=0)
-      with open("token.json", "w") as token:
-        token.write(creds.to_json())
-
-    self._service = build("gmail", "v1", credentials=creds)
+    self._mailjet = mailjet_rest.Client(
+        auth=(os.environ["MJ_APIKEY_PUBLIC"], os.environ["MJ_APIKEY_PRIVATE"]),
+        version="v3.1")
 
   def send_email(self, to: Text, subject: Text, content: Text):
     message = MIMEText(content, "html")
     message["To"] = to
     message["From"] = self._from_email
     message["Subject"] = subject
-
-    create_message = {
-        "raw": base64.urlsafe_b64encode(message.as_bytes()).decode()
+    data = {
+        "Messages": [{
+            "From": {
+                "Email": self._from_email,
+            },
+            "To": [{
+                "Email": to,
+            },],
+            "Subject": subject,
+            "HTMLPart": content,
+        },]
     }
-    self._service.users().messages().send(
-        userId="me", body=create_message).execute()
+    logging.info("data: %r", data)
+
+    res = self._mailjet.send.create(data=data)
+    res.raise_for_status()
 
   def send_diffs(self, to: Text, diffs: Dict[Text, AvailabilityDiffMap]):
     doc, tag, text, line = yattag.Doc().ttl()

@@ -1,5 +1,5 @@
 ---
-notifier_email: scriptalerts12345@gmail.com
+notifier_email: alerts@downtowncoolsville.us
 
 alert_groups:
   - emails:

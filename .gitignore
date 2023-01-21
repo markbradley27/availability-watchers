@@ -3,6 +3,5 @@ venv/
 
 availability_files/
 config*\.yaml
-client_secret.json
 log
-token.json
+.env

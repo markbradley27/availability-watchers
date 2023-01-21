@@ -2,6 +2,7 @@ from absl import app
 from absl import flags
 from absl import logging
 import datetime
+import dotenv
 import pprint
 import pyjokes
 from typing import Dict, Text
@@ -12,6 +13,8 @@ from watchers.checkfront import gmc_huts, vt_huts
 from watchers.recreation_gov import fairholme_campground
 from util.date_range import DateRange
 from util.notifier import Notifier
+
+dotenv.load_dotenv()
 
 FLAGS = flags.FLAGS
 
