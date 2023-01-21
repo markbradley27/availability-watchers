@@ -1,4 +1,3 @@
-from absl import logging
 from email.mime.text import MIMEText
 import mailjet_rest
 import os
@@ -35,7 +34,6 @@ class Notifier:
             "HTMLPart": content,
         },]
     }
-    logging.info("data: %r", data)
 
     res = self._mailjet.send.create(data=data)
     res.raise_for_status()
