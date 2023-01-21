@@ -14,7 +14,7 @@ class Notifier:
     self._from_email = from_email
 
     self._mailjet = mailjet_rest.Client(
-        auth=(os.environ["MJ_APIKEY_PUBLIC"], os.environ["MJ_APIKEY_PRIVATE"]),
+        auth=(os.getenv("MJ_APIKEY_PUBLIC"), os.getenv("MJ_APIKEY_PRIVATE")),
         version="v3.1")
 
   def send_email(self, to: Text, subject: Text, content: Text):
